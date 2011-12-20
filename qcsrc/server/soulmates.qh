@@ -1,4 +1,4 @@
-float g_soulmates = 1;
+float g_soulmates;
 
 .entity soulmate;
 .entity sment;

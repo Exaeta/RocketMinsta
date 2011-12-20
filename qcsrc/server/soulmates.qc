@@ -19,6 +19,7 @@ void sm_Attach(entity host, entity slave) {
 	slave.movetype = MOVETYPE_FOLLOW;
 	slave.aiment = host.sment;
 	slave.smhost = host;
+	slave.sm_canattach = 0;
 	
 	FOR_EACH_PLAYER(other) if(other.team != slave.team)
 		bigprint_spec(other, "^1warning!", strcat(slave.netname, " ^7 is now ", host.netname, "^7's soulmate!"), 2);
@@ -84,8 +85,8 @@ void sm_Frame() {
 	if(!self.sm_canattach)
 		return;
 	
-	if(self.soulmate)
-		return;
+	//if(self.soulmate)
+	//	return;
 	
 	vector sm_extra_size = '1 1 1' * 10;
 	
@@ -131,6 +132,9 @@ void sm_Clear() {
 }
 
 void sm_RemovePlayer() {
+	if(self.soulmate)
+		self.soulmate.sm_canattach = 1;
+	
 	sm_Detach(self);
 	
 	FOR_EACH_CLIENT(other)
