@@ -660,6 +660,9 @@ void FlagTouch()
 			WaypointSprite_AttachCarrier("flagcarrier", other);
 			WaypointSprite_UpdateTeamRadar(other.waypointsprite_attachedforcarrier, RADARICON_FLAGCARRIER, '1 1 0');
 			
+			other.scorekeeper.SendFlags |= pow (2, SP_CARRYING);
+			other.scorekeeper.(scores [SP_CARRYING]) = TeamMask (self.team);
+			
 			hudflash_teamcolor_default_spec(other);
 		}
 	}
