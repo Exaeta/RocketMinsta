@@ -689,6 +689,7 @@ void vip_AssignCustomBlueVIP(entity newvip)
 	{
 		bprint("^5VIP^7: tried to assign the ^4BLUE^7 vip, but there is already one!\n");
 		return;
+		
 	}
 	
 	bluevip = newvip;

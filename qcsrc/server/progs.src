@@ -33,6 +33,7 @@ portals.qh
 
 g_hook.qh
 g_handgrenades.qh
+soulmates.qh
 
 scores.qh
 
@@ -131,6 +132,7 @@ mode_onslaught.qc
 nexball.qc
 g_hook.qc
 g_handgrenades.qc
+soulmates.qc
 
 t_swamp.qc
 

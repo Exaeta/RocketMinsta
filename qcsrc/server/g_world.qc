@@ -682,6 +682,9 @@ void spawnfunc_worldspawn (void)
 		addstat(STAT_PINKALIVE, AS_INT, pinkalive_stat);
 		addstat(STAT_FROZEN, AS_INT, freezetag_frozen);
 		//addstat(STAT_REVIVE_PROGRESS, AS_FLOAT, freezetag_revive_progress);
+		
+		if(g_soulmates)
+			addstat(STAT_SM_HASGEM, AS_INT, sm_canattach);
 	}
 
     if(g_domination)

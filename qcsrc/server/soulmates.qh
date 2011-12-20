@@ -1,0 +1,21 @@
+float g_soulmates = 1;
+
+.entity soulmate;
+.entity sment;
+.entity smhost;
+.float sm_canattach;
+.float sm_nextnotify;
+
+void sm_Init();
+
+void sm_Attach(entity host, entity slave);
+void sm_Detach(entity host);
+void sm_Frame();
+void sm_Clear();
+void sm_RemovePlayer();
+float sm_IsSoulMate(entity p);
+
+void sm_SoulGem_Touch();
+void sm_RemoveSoulGem(entity gem);
+void sm_SoulGem_Reset();
+void sm_SpawnSoulGem(float theteam);
