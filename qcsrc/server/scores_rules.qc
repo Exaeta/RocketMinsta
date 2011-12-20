@@ -84,6 +84,7 @@ void ScoreRules_ctf()
 	ScoreInfo_SetLabel_PlayerScore(SP_CTF_FCKILLS,  "fckills",   0);
 	ScoreInfo_SetLabel_PlayerScore(SP_CTF_RETURNS,  "returns",   0);
 	ScoreInfo_SetLabel_PlayerScore(SP_CTF_DROPS,    "drops",     SFL_LOWER_IS_BETTER);
+	ScoreInfo_SetLabel_PlayerScore (SP_CARRYING,    "fc",        0);
 	ScoreRules_basics_end();
 }
 
@@ -167,6 +168,7 @@ void ScoreRules_kh(float teams)
 	ScoreInfo_SetLabel_PlayerScore(SP_KH_PICKUPS,   "pickups",   0);
 	ScoreInfo_SetLabel_PlayerScore(SP_KH_KCKILLS,   "kckills",   0);
 	ScoreInfo_SetLabel_PlayerScore(SP_KH_LOSSES,    "losses",    SFL_LOWER_IS_BETTER);
+//	ScoreInfo_SetLabel_PlayerScore (SP_CARRYING,    "keys",      0); // fuck CSQC
 	ScoreRules_basics_end();
 }
 

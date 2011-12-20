@@ -211,6 +211,10 @@ void kh_Key_Attach(entity key)  // runs when a player picks up a key and several
 
 void kh_Key_Detach(entity key) // runs every time a key is dropped or lost. Runs several times times when all the keys are captured
 {
+// maybe one day I'll figure out what's wrong with the scorekeeper
+// until then, this will have to stay commented out
+//	key.owner.scorekeeper.SendFlags |= pow (2, SP_CARRYING);
+//	key.owner.scorekeeper.(scores [SP_CARRYING]) &~= TeamMask (key.owner.team);
 #ifdef KH_PLAYER_USE_ATTACHMENT
 	entity first;
 	first = key.owner.kh_next;
@@ -488,6 +492,10 @@ float kh_Key_AllOwnedByWhichTeam()  // constantly called. check to see if all th
 void kh_Key_Collect(entity key, entity player)  //a player picks up a dropped key
 {
 	sound(player, CHAN_AUTO, kh_sound_collect, VOL_BASE, ATTN_NORM);
+
+// this too
+//	player.scorekeeper.SendFlags |= pow (2, SP_CARRYING);
+//	player.scorekeeper.(scores [SP_CARRYING]) |= TeamMask (player.team);
 
 	if(key.kh_dropperteam != player.team)
 	{

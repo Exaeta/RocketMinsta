@@ -489,6 +489,12 @@ void FlagTouch()
 		// give credit to the individual player
 		UpdateFrags(other, ctf_score_value("score_capture"));
 
+		other.scorekeeper.SendFlags |= pow (2, SP_CARRYING);
+		other.scorekeeper.(scores [SP_CARRYING]) = 0;
+
+		//<akari>
+		//Specially for Spook: restore health on flag capture
+		
 		if(cvar("g_balance_minstanex_explosive"))
 		if(cvar("g_explosive_ctf_capheals"))
 		{
@@ -531,6 +537,9 @@ void FlagTouch()
 		if (cvar("g_ctf_flag_pickup_effects")) // pickup effect
 			pointparticles(particleeffectnum("smoke_ring"), 0.5 * (self.absmin + self.absmax), '0 0 0', 1);
 			
+		other.scorekeeper.SendFlags |= pow (2, SP_CARRYING);
+		other.scorekeeper.(scores [SP_CARRYING]) = TeamMask (self.team);
+
 		// pick up
 		self.flagpickuptime = time; // used for timing runs
 		self.speedrunning = other.speedrunning; // if speedrunning, flag will self-return and teleport the owner back after the record

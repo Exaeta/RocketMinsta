@@ -471,9 +471,11 @@ void PostInit(void)
 			localcmd("seta rm_nokillsound 0; nokillsound 0\n");
 		case 32:
 			localcmd ("seta rm_hidecountry 0; hidecountry 0\n");
+		case 33:
+			localcmd ("seta rm_showrankings 1; showrankings 1\n");
 		
 		//More to come here with each update
-		localcmd("seta rm_initialized 33\n");
+		localcmd("seta rm_initialized 34\n");
 		RM_OUTDATED
 		break;
 	}
@@ -497,6 +499,7 @@ void PostInit(void)
 	rm_oldhud = rm_oldhud_option;
 	rm_althud = rm_althud_option;
 	rm_noflags = cvar("rm_noflags");
+	rm_showrankings = cvar("rm_showrankings");
 	
 	registercmd("rmhelp");
 	registercmd("showspec");
@@ -520,10 +523,11 @@ void PostInit(void)
 	registercmd("notimer");
 	registercmd("nogamemenu");
 	registercmd("nokillsound");
+	registercmd("hidecountry");
+	registercmd("showrankings");
 	// -- //
 	registercmd("hudskin");
-	registercmd ("hidecountry");
-	localcmd ("cmd hidecountry ", cvar_string ("rm_hidecountry"), "\n");
+	
 	
 	bigprint(strcat("^2", shortmapname), ((MapInfo_Map_title != "<TITLE>")? MapInfo_Map_title : ""), 2);
 	
@@ -541,6 +545,7 @@ void PostInit(void)
 	localcmd("cmd hudinfo ", cvar_string("rm_oldhud"), " ", cvar_string("rm_althud"), "\n");
 	localcmd("cmd anonspec ", cvar_string("rm_anonspec"), "\n");
 	localcmd("cmd nokillsound ", ftos(cvar("rm_nokillsound")), "\n");
+	localcmd("cmd hidecountry ", cvar_string ("rm_hidecountry"), "\n");
 	
 	if(cvar("_cl_afkstate"))
 		localcmd("cmd afk\n");
@@ -556,7 +561,7 @@ void PostInit(void)
 	else if(rm_helptime)
 		localcmd("menu_cmd directmenu RMConfig\n");
 	
-	localcmd("cmd menu_request"); // workaround against restarts
+	localcmd("cmd menu_request\n"); // workaround against restarts
 	
 	postinit = true;
 }
@@ -647,22 +652,24 @@ float CSQC_ConsoleCommand(string strMessage)
 		print("^2showspec^7: If enabled, you will see who is spectating you unless the server forbids it (enabled by default)\n");
 		print("^2showdamage^7: If enabled, you will see how much damage you deal or take on each hit unless the server forbids it (enabled by default)\n");
 		print("^2teamlasers^7: If enabled, laser projectiles will have a team specific color unless the server forbids it (enabled by default)\n");
-		print("^2nobigtext^7: If enabled, the top-center big messages (bigprings) will be redirected into the bottom centerprint area (disabled by default)\n");
+		print("^2nobigtext^7: If enabled, the top-center big messages (bigprints) will be redirected into the bottom centerprint area (disabled by default)\n");
 		print("^2hidebigcomments^7: If enabled, comments for bigprints will not be shown (disabled by default)\n");
 		print("^2legacyvote^7: If enabled, votes will be displayed in plaintext instead of a dialog (disabled by default)\n");
 		print("^2anonspec^7: Anonymous spectator mode. If enabled, players will not see when you're spectating them, unless the server forbids it (disabled by default)\n");
-		print("^2hidewatermark^7: If enabled, the RM watermark containing build information will not be drawn (disabled by default)\n");
-		print("^2crosshealth^7: If enabled, the crosshair color will depend on current health (disabled by default)\n");
+		print("^2hidewatermark^7: If enabled, the RM build information watermark will not be drawn (disabled by default)\n");
+		print("^2crosshealth^7: If enabled, the crosshair color will reflect current health (disabled by default)\n");
 		print("^2dontmesswithfonts^7: Deprecated, kept for compatibility\n");
 		print("^2simpleeffects^7: Enables simple fade effects for onscreen notifications instead of fancy ones (disabled by default)\n");
-		print("^2shownames^7: If enabled, names of players will be drawn above their heads (enabled by default)\n");
+		print("^2shownames^7: If enabled, names of players will be shown above their heads (enabled by default)\n");
 		print("^2visualscore^7: If enabled, changes to your score will be displayed (enabled by default)\n");
 		print("^2oldhud^7: If enabled, standard Nexuiz HUD will be used (disabled by default)\n");
 		print("^2althud^7: If enabled, use an alternative layout for the HUD (disabled by default)\n");
 		print("^2noflags^7: If enabled, plain-text country codes will be shown instead of flags (disabled by default)\n");
 		print("^2notimer^7: If enabled, the 'time' column will not be shown in the scoreboard (disabled by default)\n");
-		print("^2nogamemenu^7: If enabled, will go directly to the main menu when activating menu in-game\n");
-		print("^2nokillsound^7: If enabled, the kill sound will not be used (you'll hear the default hit sound instead)\n");
+		print("^2nogamemenu^7: If enabled, will go directly to the main menu when activating menu in-game (disabled by default)\n");
+		print("^2nokillsound^7: If enabled, the kill sound will not be used (you'll hear the default hit sound instead) (disabled by default)\n");
+		print("^2hidecountry^7: If enabled, your flag in the scoreboard will be replaced with a question mark sign, unless the server forbids it (disabled by default)\n");
+		print("^2showrankings^7: If enabled, will show a mini-scoreboard in the HUD (enabled by default)\n");
 		#ifdef RM_SUPPORT_MADOKA
 		#ifdef RM_SHOW_MADOKA_IN_RMHELP
 		print("^2madoka^7: If enabled, big text will be shown using Madoka runes instead of normal characters. By enabling this option, you automatically accept The Contract (disabled by default)\n");
@@ -693,7 +700,8 @@ float CSQC_ConsoleCommand(string strMessage)
 		strCmd == "noflags"				||
 		strCmd == "notimer"				||
 		strCmd == "nogamemenu"			||
-		strCmd == "nokillsound"			 )
+		strCmd == "nokillsound"			||
+		strCmd == "showrankings"		 )
 	{
 		VALUEREQUIRED
 		cvar_set(strcat("rm_", strCmd), argv(1));
@@ -711,6 +719,7 @@ float CSQC_ConsoleCommand(string strMessage)
 		rm_oldhud_option = cvar("rm_oldhud");
 		rm_althud_option = cvar("rm_althud");
 		rm_noflags = cvar("rm_noflags");
+		rm_showrankings = cvar("rm_showrankings");
 		
 		if(strCmd == "oldhud" || strCmd == "althud")
 		{
@@ -1158,6 +1167,9 @@ float CSQC_InputEvent(float bInputType, float nPrimary, float nSecondary)
 {
 	local float bSkipKey;
 	bSkipKey = false;
+
+	if(MapVote_InputEvent(bInputType, nPrimary, nSecondary))
+		return true;
 
 	if(menu_visible)
 		if(menu_action(bInputType, nPrimary, nSecondary))

@@ -235,14 +235,6 @@ void W_MinstaNex_Attack (void)
 	}
 }
 
-
-//<akari>
-.entity hooker;
-.entity hooked_to;
-entity nobody;
-string GetHitSound(entity attacker, entity target);
-//</akari>
-
 .float minstagib_nextthink;
 void minstagib_ammocheck (void)
 {
@@ -251,6 +243,7 @@ void minstagib_ammocheck (void)
 
 	if(g_minstagib)
 	if(!cvar("g_balance_minstanex_explosive"))
+	if not(g_freezetag && self.freezetag_frozen)
 	if (self.ammo_cells <= 0)
 	{
 		#define AMMO_DEATHMESSAGE(m) bigprint_spec(self, m, "", 1)
@@ -324,26 +317,11 @@ void minstagib_ammocheck (void)
 		}
 	}
 	
-	//<akari>
-	//Health draining
-	
 	if(!g_freezetag || !self.freezetag_frozen)
 	if(cvar("g_balance_minstanex_explosive") && cvar("g_explosive_health_drain") && self.health > cvar("g_explosive_health_min"))
 	{
 		self.health -= cvar("g_explosive_health_drain");
 	}
-	
-	//Hook damage
-	/*if(self.hooker.hooked_to == self)
-	{
-		if(!teams_matter || self.hooker.team != self.team)
-		{
-			play2(self.hooker, "misc/hit.wav");
-			Damage(self, self.hooker.hook, self.hooker, random() * 10, DEATH_NOAMMO, self.origin, '0 0 0');
-		}
-	}*/
-	
-	//</akari>
 	
 	self.minstagib_nextthink = time + 1;
 }
@@ -492,7 +470,7 @@ float w_minstanex(float req)
 	}
 	else if (req == WR_THINK)
 	{
-		if (self.BUTTON_ATCK2 || (self.BUTTON_ATCK && !self.ammo_cells))
+		if (self.BUTTON_ATCK2 || (self.BUTTON_ATCK && !self.ammo_cells && cvar("g_balance_minstanex_explosive")))
 		{
 			if(g_freezetag)
 			if(self.freezetag_frozen)

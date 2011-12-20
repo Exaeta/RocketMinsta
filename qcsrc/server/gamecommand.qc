@@ -657,6 +657,14 @@ void GameCommand(string command)
 	{
 		float t, tsave;
 		s = argv(1);
+		s = NormalizeGametypeName(s);
+		
+		if(s == "")
+		{
+			print("^1Gametype '", argv(1), "' is either invalid or not supported by RocketMinsta\n");
+			return;
+		}
+		
 		t = MapInfo_Type_FromString(s);
 		tsave = MapInfo_CurrentGametype();
 		if(t)
@@ -1058,6 +1066,7 @@ void GameCommand(string command)
 		{
 			//if(clienttype(e) == CLIENTTYPE_REAL) stuffcmd(e, "cl_cmd walpurgis\n");
 			madokaprint(e, "^1x ^0WALPURGIS NIGHT ^10", "", 5);
+			stuffcmd(e, "play2 sound/misc/scream\n");
 			
 			if(e.classname == "player")
 			{
