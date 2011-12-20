@@ -278,6 +278,17 @@ void Obituary (entity attacker, entity inflictor, entity targ, float deathtype)
 
 	if (targ.classname == "player" || targ.classname == "corpse")
 	{
+		if(targ.hg_power > 0)
+		{
+			targ.hg_power = 0;
+			entity o;
+			o = self;
+			self = targ;
+			HG_Attack();
+			self = o;
+		}
+		targ.hg_ammo = 0;
+		
 		if (targ.classname == "corpse")
 			s = "A corpse";
 		else
@@ -843,6 +854,16 @@ void Damage (entity targ, entity inflictor, entity attacker, float damage, float
 		// These are ALWAYS lethal
 		// No damage modification here
 		// Instead, prepare the victim for his death...
+		
+		if(g_freezetag && targ.freezetag_frozen && deathtype != DEATH_KILL)
+		{
+			oldself = self;
+			self = targ;
+			PutClientInServer();
+			self = oldself;
+			return;
+		}
+		
 		targ.armorvalue = 0;
 		targ.spawnshieldtime = 0;
 		targ.health = 0.9; // this is < 1
@@ -956,10 +977,19 @@ void Damage (entity targ, entity inflictor, entity attacker, float damage, float
 			float armor_passthrough = cvar("g_explosive_armor_passthrough");
 
 			if(ex)
-			if(targ.ignore_next && DEATH_ISWEAPON(deathtype, WEP_ROCKET_LAUNCHER))
 			{
-				damage = 0;
-				targ.ignore_next = 0;
+				if(targ.ignore_next && DEATH_ISWEAPON(deathtype, WEP_ROCKET_LAUNCHER))
+				{
+					damage = 0;
+					targ.ignore_next = 0;
+				}
+				
+				if(DEATH_ISWEAPON(deathtype, WEP_ROCKET_LAUNCHER))
+				if(attacker != targ && cvar("g_explosive_splash_selfonly"))
+				{
+					damage = 0;
+					force = '0 0 0';
+				}
 			}
 
 			if (targ.armorvalue && DEATH_ISWEAPON(deathtype, WEP_MINSTANEX) && damage && (cvar("g_explosive_minsta_damage") <= 0))
@@ -995,32 +1025,6 @@ void Damage (entity targ, entity inflictor, entity attacker, float damage, float
 			}
 
 			if(ex)
-			if(ex_armor)
-			if(targ.armorvalue)
-			if(!DEATH_ISWEAPON(deathtype, WEP_MINSTANEX) || (cvar("g_explosive_minsta_damage") >= 0))
-			if not(DEATH_ISSPECIAL(deathtype))
-			if(targ != attacker)
-			{
-				armordamage = damage * cvar("g_explosive_armor_factor");
-				attacker.hitsound += 1;
-
-				if(armor_passthrough)
-				{
-					float rest;
-					rest = targ.armorvalue - armordamage;
-
-					if(rest < 0)
-						damage = -rest;
-					else
-						damage = 0;
-				}
-				else
-					damage = 0;
-
-				targ.armorvalue -= min(targ.armorvalue, armordamage);
-			}
-
-			if(ex)
 			{
 				if (DEATH_ISWEAPON(deathtype, WEP_LASER) || DEATH_ISWEAPON(deathtype, WEP_ELECTRO))
 				{
@@ -1028,6 +1032,35 @@ void Damage (entity targ, entity inflictor, entity attacker, float damage, float
 					{
 						damage = 0;
 					}
+				}
+				
+				if(damage)
+				if(ex_armor)
+				if(targ.armorvalue)
+				if(!DEATH_ISWEAPON(deathtype, WEP_MINSTANEX) || (cvar("g_explosive_minsta_damage") >= 0))
+				if not(DEATH_ISSPECIAL(deathtype))
+				{
+					armordamage = damage * cvar("g_explosive_armor_factor");
+					
+					if(targ == attacker)
+						armordamage *= cvar("g_balance_selfdamagepercent");
+					else
+						attacker.hitsound += 1;
+
+					if(armor_passthrough)
+					{
+						float rest;
+						rest = targ.armorvalue - armordamage;
+
+						if(rest < 0)
+							damage = -rest;
+						else
+							damage = 0;
+					}
+					else
+						damage = 0;
+
+					targ.armorvalue -= min(targ.armorvalue, armordamage);
 				}
 			}
 			else
@@ -1390,6 +1423,7 @@ void Damage (entity targ, entity inflictor, entity attacker, float damage, float
 	}
 
 	// apply mirror damage if any
+	if not(g_minstagib && cvar("g_balance_minstanex_explosive"))
 	if(mirrordamage > 0 || mirrorforce > 0)
 	{
 		attacker = attacker_save;

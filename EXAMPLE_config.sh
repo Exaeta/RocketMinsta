@@ -4,8 +4,8 @@
 NEXDATA="$HOME/.nexuiz/data"
 
 # Paths where the compiled mod files will be installed
-SVPROGS="$NEXDATA/sv_mod.dat"
-CSPROGS="$NEXDATA/cl_mod.dat"
+SVPROGS="$NEXDATA/rocketminsta_sv.dat"
+CSPROGS="$NEXDATA/rocketminsta_cl.dat"
 
 # List of QuakeC compillers the script will attempt to use
 # Full and relative paths are allowed
@@ -39,3 +39,13 @@ CACHEPKGS=0
 # Like CACHEPKGS, but caches compilled QuakeC code
 CACHEQC=0
 
+# If enabled, some graphics in client packages will be compressed as lower quality jpgs to reduce the package size
+# The list of directories to compress is specified in the "compressdirs" file of the package's directory, if present
+# Requires ImageMagick, will be automatically disabled if not installed
+COMPRESSGFX=1
+
+# Will get passed to the -quality parameter of 'convert'
+COMPRESSGFX_QUALITY=85
+
+# Release branch override. Normally empty.
+BUILDNAME=""

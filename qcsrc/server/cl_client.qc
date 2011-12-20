@@ -1195,6 +1195,9 @@ void PutClientInServer (void)
 		self.shownames.customizeentityforclient = shownames_customize;
 		Net_LinkEntity(self.shownames, FALSE, 0, SendEntity_ShowNames);
 	}
+	
+	if(g_handgrenades)
+		HG_PlayerSpawn();
 }
 
 float ClientInit_SendEntity(entity to, float sf)
@@ -2286,6 +2289,8 @@ void SpectateCopy(entity spectatee) {
 	self.fixangle = TRUE;
 	self.freezetag_frozen = spectatee.freezetag_frozen;
 	self.freezetag_revive_progress = spectatee.freezetag_revive_progress;
+	self.hg_power = spectatee.hg_power;
+	self.hg_ammo = spectatee.hg_ammo;
 	setorigin(self, spectatee.origin);
 	setsize(self, spectatee.mins, spectatee.maxs);
 	SetZoomState(spectatee.zoomstate);
@@ -2719,6 +2724,8 @@ void PlayerPreThink (void)
 
 		if(frametime)
 			player_powerups();
+
+		HG_Frame();
 
 		if (self.deadflag != DEAD_NO)
 		{
