@@ -12,7 +12,7 @@ void sm_Attach(entity host, entity slave) {
 	while(host.soulmate)
 		host = host.soulmate;
 	
-	if(host == slave)
+	if(host == slave || host == slave.soulmate || slave == host.soulmate)
 		return;
 	
 	host.soulmate = slave;
@@ -30,7 +30,7 @@ void sm_Attach(entity host, entity slave) {
 	string s = strcat(slave.netname, " ^7is now ", host.netname, "^7's soulmate!\n");
 	FOR_EACH_PLAYER(other)
 		centerprint_spec(other, s);
-	bprint(s, "\n");
+	bprint(s);
 	
 	play2all("kh/capture.wav");
 }
@@ -79,10 +79,30 @@ void sm_Frame() {
 		if(!self.aiment) {	// some weird bug
 			self.aiment = self.smhost.sment;
 		}
+		
+		if(self.BUTTON_USE) {
+			if(cvar("g_explosive_freezetag_soulmates_allow_detach")) {
+				bprint(self.netname, " ^7has detached from ", self.smhost.netname, "\n");
+				
+				sm_Detach(self.smhost);
+				self.sm_canattach = 1;
+				self.sm_attachblock = time + 2;
+				
+				makevectors(self.angles);
+				self.velocity = self.velocity - v_forward * 100;
+				self.velocity_z = 400;
+			} else {
+				sprint(self, "^1You are not allowed to detach on this server\n");
+			}
+		}
+		
 		return;
 	}
 	
 	if(!self.sm_canattach)
+		return;
+	
+	if(time < self.sm_attachblock)
 		return;
 	
 	//if(self.soulmate)

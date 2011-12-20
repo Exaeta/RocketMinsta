@@ -5,6 +5,7 @@ float g_soulmates;
 .entity smhost;
 .float sm_canattach;
 .float sm_nextnotify;
+.float sm_attachblock;
 
 void sm_Init();
 
