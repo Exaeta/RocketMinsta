@@ -9,6 +9,7 @@ void vip_ResetVIPInfo();
 
 .float vip_armorregen_next;
 .float vip_healthregen_next;
+.float vip_grenregen_next;
 
 entity vip_sg_startroundentity;
 
@@ -594,6 +595,7 @@ void vip_MakePlayerVIP(entity pl)
 		}
 	}
 	
+	pl.vip_grenregen_next = time + cvar("g_explosive_vip_regenerate_grenades_delay");
 	vip_ResetHealthArmor(pl);
 
 	local entity e, oldself;
@@ -657,6 +659,13 @@ void vip_PlayerPreThink()
 			self.vip_regenhealth_f();
 		//else
 		//	bprint("^1URGENT: ^7", self.netname, " has no vip_regenhealth_f! Everything is fucked up!\n");
+	}
+	
+	if(cvar("g_explosive_vip_regenerate_grenades"))
+	if(time >= self.vip_grenregen_next)
+	{
+		self.hg_ammo += cvar("g_explosive_vip_regenerate_grenades_amount");
+		self.vip_grenregen_next = time + cvar("g_explosive_vip_regenerate_grenades_delay");
 	}
 }
 
