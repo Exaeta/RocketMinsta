@@ -1862,7 +1862,7 @@ void TeamBubbleThink()
 
 float TeamBubble_customizeentityforclient()
 {
-	return (self.owner != other && self.owner.team == other.team && other.killcount > -666);
+	return (self.owner.smhost != other && self.owner.soulmate != other && self.owner != other && self.owner.team == other.team && other.killcount > -666);
 }
 
 void UpdateTeamBubble()
