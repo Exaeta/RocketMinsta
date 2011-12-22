@@ -662,6 +662,7 @@ void vip_PlayerPreThink()
 	}
 	
 	if(cvar("g_explosive_vip_regenerate_grenades"))
+	if(self.hg_ammo < cvar("g_explosive_handgrenades_ammo"))
 	if(time >= self.vip_grenregen_next)
 	{
 		self.hg_ammo += cvar("g_explosive_vip_regenerate_grenades_amount");
