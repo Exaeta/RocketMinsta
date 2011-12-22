@@ -297,12 +297,24 @@ float RemapVote(string vote, string cmd, entity e)
 		return FALSE;
 		#endif
 	}
+	else if ((argv (0) == "ftteams" || argv (0) == "khteams") && vote_argc <= 1)
+	{
+		sprint (e, strcat ("^1Please input a number of teams, e.g. ^2", argv (0), " 3\n"));
+		return FALSE;
+	}
 	else
 	{
 		s = NormalizeGametypeName(argv(0));
 		
 		if(s != "")	// detected a gametype vote
 		{
+			// Gametype already being played?
+			if (s == GetGametype ())
+			{
+				sprint (e, strcat ("^1A game of ^2", GametypeFullNameFromType (game), " ^1is already being played!\n"));
+				return FALSE;
+			}
+
 			// Gametype overplayed?
 			// TODO: Get rid of this, if the gametype is overplayed a gametype voting screen should appear
 			if(!cvar("g_explosive_gametypevote_overplayed_allowcall"))
