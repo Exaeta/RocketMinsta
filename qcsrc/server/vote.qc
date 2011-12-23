@@ -90,6 +90,13 @@ float RemapVote(string vote, string cmd, entity e)
 	// VoteAllowed tokenizes!
 	vote_argc = tokenize_console(vote);
 
+	local float min_argc = cvar (strcat ("g_explosive_vote_", argv (0), "_min_arguments"));
+	if (vote_argc < min_argc && min_argc > 0)
+	{
+		sprint (e, strcat ("^2", argv (0), " ^1requires at least ^2", ftos (min_argc), " ^1argument(s).\n"));
+		return FALSE;
+	}
+
 	// remap chmap to gotomap (forces intermission)
 	if(vote_argc < 2)
 		if(argv(0) == "chmap" || argv(0) == "gotomap" || argv(0) == "kick" || argv(0) == "kickban" || argv (0) == "nickban") // won't work without arguments
@@ -296,11 +303,6 @@ float RemapVote(string vote, string cmd, entity e)
 		sprint(e, "^7The rescue team is not ready yet\n");
 		return FALSE;
 		#endif
-	}
-	else if ((argv (0) == "ftteams" || argv (0) == "khteams") && vote_argc <= 1)
-	{
-		sprint (e, strcat ("^1Please input a number of teams, e.g. ^2", argv (0), " 3\n"));
-		return FALSE;
 	}
 	else
 	{

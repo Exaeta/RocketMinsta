@@ -473,9 +473,10 @@ void PostInit(void)
 			localcmd ("seta rm_hidecountry 0; hidecountry 0\n");
 		case 33:
 			localcmd ("seta rm_showrankings 1; showrankings 1\n");
+        case 34:
 		
 		//More to come here with each update
-		localcmd("seta rm_initialized 34\n");
+		localcmd("seta rm_initialized 35\n");
 		RM_OUTDATED
 		break;
 	}
