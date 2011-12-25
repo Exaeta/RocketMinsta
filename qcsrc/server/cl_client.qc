@@ -2841,7 +2841,7 @@ void PlayerPreThink (void)
 			if (self.crouch)
 			{
 				tracebox(self.origin, PL_MIN, PL_MAX, self.origin, FALSE, self);
-				if (!trace_startsolid || self.soulmate && self.soulmate == trace_ent)
+				if (!trace_startsolid || self.soulmate /*&& self.soulmate == trace_ent*/)
 				{
 					self.crouch = FALSE;
 					self.view_ofs = PL_VIEW_OFS;

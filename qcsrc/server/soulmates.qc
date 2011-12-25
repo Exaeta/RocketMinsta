@@ -19,6 +19,8 @@ void sm_Attach(entity host, entity slave) {
 	slave.movetype = MOVETYPE_FOLLOW;
 	slave.aiment = host.sment;
 	slave.smhost = host;
+	slave.oldsolid = slave.solid;
+	slave.solid = SOLID_CORPSE;
 	slave.sm_canattach = 0;
 	
 	FOR_EACH_PLAYER(other) if(other.team != slave.team)
@@ -47,11 +49,12 @@ void sm_Detach(entity host) {
 	slave.aiment = world;
 	slave.smhost = world;
 	slave.velocity = '0 0 0';
+	slave.solid = slave.oldsolid;
 	host.soulmate = world;
 }
 
 void sm_SMEntThink() {
-	setorigin(self, self.owner.origin + '0 0 0.49' * self.owner.size_z);
+	setorigin(self, self.owner.origin + '0 0 0.82' * self.owner.size_z);
 	self.nextthink = time;
 }
 

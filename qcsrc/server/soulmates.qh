@@ -6,6 +6,7 @@ float g_soulmates;
 .float sm_canattach;
 .float sm_nextnotify;
 .float sm_attachblock;
+.float oldsolid;
 
 void sm_Init();
 
