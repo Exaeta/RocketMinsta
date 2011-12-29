@@ -396,7 +396,7 @@ float freezetag_RemovePlayer()
 {
     DEPENDON_F(g_freezetag, 0)
     
-    sm_Detach(self);
+    sm_RemovePlayer();
     
 	if(self.freezetag_frozen == 0)
 	{

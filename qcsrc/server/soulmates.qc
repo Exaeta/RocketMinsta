@@ -45,11 +45,17 @@ void sm_Detach(entity host) {
 	if(!slave)
 		return;
 	
-	slave.movetype = MOVETYPE_WALK;
 	slave.aiment = world;
 	slave.smhost = world;
-	slave.velocity = '0 0 0';
-	slave.solid = slave.oldsolid;
+	
+	if(slave.classname == "player") {
+		// this doesn't happen when we're fixing a broken reference
+		
+		slave.movetype = MOVETYPE_WALK;
+		slave.velocity = '0 0 0';
+		slave.solid = slave.oldsolid;
+	}
+	
 	host.soulmate = world;
 }
 
@@ -67,8 +73,21 @@ void sm_FixSMEnt(entity p) {
 	p.sment = e;
 }
 
+#define BROKEN_SMREF(e) ((e).soulmate && ((e).soulmate.smhost != (e) || (e).soulmate.movetype != MOVETYPE_FOLLOW))
+
 void sm_Frame() {
 	DEPENDON(g_soulmates)
+	
+	if(BROKEN_SMREF(self)) {
+		//bprint(self.netname, " ^7has a broken soulmate reference! Trying to force detachment...\n");
+		sm_Detach(self);
+		
+		/*
+		if(BROKEN_SMREF(self))
+			bprint("Failed!\n");
+		else bprint("Successful, reference fixed.\n");
+		*/
+	}
 	
 	if(self.sm_canattach && !sm_IsSoulMate(self) && time > self.sm_nextnotify) {
 		bigprint_spec(self, "you've got a soul gem!", "Collide with a teammate to connect!", 2);
@@ -77,8 +96,10 @@ void sm_Frame() {
 	
 	if(!self.sment)
 		sm_FixSMEnt(self);
-		
-	if(sm_IsSoulMate(self)) {
+	
+	float isSoulmate = sm_IsSoulMate(self);
+	
+	if(isSoulmate) {
 		if(!self.aiment) {	// some weird bug
 			self.aiment = self.smhost.sment;
 		}
@@ -86,20 +107,48 @@ void sm_Frame() {
 		if(self.BUTTON_USE) {
 			if(cvar("g_explosive_freezetag_soulmates_allow_detach")) {
 				bprint(self.netname, " ^7has detached from ", self.smhost.netname, "\n");
+				centerprint_spec(self.smhost, strcat(self.netname, " ^7has detached from you"));
 				
 				sm_Detach(self.smhost);
-				self.sm_canattach = 1;
+				self.sm_canattach = 0;
 				self.sm_attachblock = time + 2;
 				
 				makevectors(self.angles);
 				self.velocity = self.velocity - v_forward * 100;
 				self.velocity_z = 400;
+				
+				sm_DropSoulGem();
 			} else {
 				sprint(self, "^1You are not allowed to detach on this server\n");
 			}
 		}
 		
 		return;
+	} else if(self.soulmate) {
+		if(self.BUTTON_USE) if(cvar("g_explosive_freezetag_soulmates_allow_drop")) {
+			bprint(self.netname, " ^7has dropped ", self.soulmate.netname, "\n");
+			centerprint_spec(self.soulmate, strcat("^7You have been dropped by ", self.netname));
+			
+			entity m = self.soulmate;
+			sm_Detach(self);
+			
+			m.sm_canattach = 1;
+			m.sm_attachblock = time + 2;
+			
+			makevectors(m.angles);
+			m.velocity = m.velocity - v_forward * 100;
+			m.velocity_z = 400;
+		} else {
+			sprint(self, "^1You are not allowed to drop your soulmates on this server\n");
+		}
+	} else if(self.BUTTON_USE) if(self.sm_canattach) {
+		if(cvar("g_explosive_freezetag_soulmates_allow_gemdrop")) {
+			bprint(self.netname, " ^7has dropped their soulgem\n");
+			self.sm_canattach = 0;
+			sm_DropSoulGem();
+		} else {
+			sprint(self, "^1You are not allowed to drop your soulgem on this server\n");
+		}
 	}
 	
 	if(!self.sm_canattach)
@@ -155,14 +204,16 @@ void sm_Clear() {
 }
 
 void sm_RemovePlayer() {
-	if(self.soulmate)
+	if(self.smhost)
+		sm_DropSoulGem();
+	
+	if(self.soulmate) {
 		self.soulmate.sm_canattach = 1;
+		sm_Detach(self.soulmate);
+	}
 	
 	sm_Detach(self);
-	
-	FOR_EACH_CLIENT(other)
-		if(other.soulmate == self)
-			sm_Detach(other);
+	self.sm_canattach = 0;
 }
 
 float sm_IsSoulMate(entity p) {
@@ -207,6 +258,9 @@ void sm_SoulGem_Touch() {
 	if(self.gem_pickedup)
 		return;
 	
+	if(time < self.sm_attachblock)
+		return;
+	
 	if(other.classname != "player")
 		return;
 	
@@ -227,6 +281,8 @@ void sm_SoulGem_Touch() {
 	FOR_EACH_PLAYER(other)
 		centerprint_spec(other, s);
 	bprint(s, "\n");
+	
+	sm_RemoveSoulGem(self);
 }
 
 void sm_RemoveSoulGem(entity gem) {
@@ -242,7 +298,7 @@ void sm_SoulGem_Reset() {
 	self.enemy.colormod = sm_SoulGemColormod2(self.team);
 }
 
-void sm_SpawnSoulGem(float theteam) {
+entity sm_CreateSoulGem(float theteam) {
 	local entity e;
 	e = spawn();
 	e.classname = "sm_soulgem";
@@ -262,22 +318,41 @@ void sm_SpawnSoulGem(float theteam) {
 	setmodel(e.enemy, "models/runematch/curse.mdl");
 	e.dphitcontentsmask = DPCONTENTS_SOLID | DPCONTENTS_BODY | DPCONTENTS_PLAYERCLIP;
 	setattachment(e.enemy, e, "");
-	
-	entity spot = Spawn_WeightedPoint(findchain(classname, "info_player_deathmatch"), 1, 1, 1);
-	setorigin(e, spot.origin);
-	
-	if(!move_out_of_solid(e))
-		bprint("\x01^1WARNING: ^7failed to move soulgem out of solid, expect weird shit and breakages\n");
-	
-	local entity oldself;
-	oldself = self;
-	self = e;
-	droptofloor();
-	self = oldself;
 
 	e.colormod = sm_SoulGemColormod(theteam);
 	e.enemy.colormod = sm_SoulGemColormod2(theteam);
 
 	e.alpha = e.enemy.alpha = 0.8;
 	e.effects = e.enemy.effects = (EF_ADDITIVE | EF_FULLBRIGHT);
+	
+	return e;
+}
+
+void sm_PlaceSoulGem(entity gem) {
+	entity spot = Spawn_WeightedPoint(findchain(classname, "info_player_deathmatch"), 1, 1, 1);
+	setorigin(gem, spot.origin);
+	
+	if(!move_out_of_solid(gem))
+		bprint("\x01^1WARNING: ^7failed to move soulgem out of solid, expect weird shit and breakages\n");
+	
+	local entity oldself;
+	oldself = self;
+	self = gem;
+	droptofloor();
+	self = oldself;
+}
+
+void sm_SpawnSoulGem(float theteam) {
+	sm_PlaceSoulGem(sm_CreateSoulGem(theteam));
+}
+
+void sm_DropSoulGem() {
+	entity gem = sm_CreateSoulGem(self.team);
+	makevectors(self.v_angle);
+	
+	gem.movetype = MOVETYPE_BOUNCE;
+	gem.origin = self.origin;
+	setorigin(gem, gem.origin + v_forward * 10);
+	gem.velocity = (v_forward + '0 0 1') * (200 + vlen(self.velocity));
+	gem.sm_attachblock = time + 2;
 }

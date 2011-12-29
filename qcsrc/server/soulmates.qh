@@ -21,3 +21,6 @@ void sm_SoulGem_Touch();
 void sm_RemoveSoulGem(entity gem);
 void sm_SoulGem_Reset();
 void sm_SpawnSoulGem(float theteam);
+entity sm_CreateSoulGem(float theteam);
+void sm_PlaceSoulGem(entity gem);
+void sm_DropSoulGem();
