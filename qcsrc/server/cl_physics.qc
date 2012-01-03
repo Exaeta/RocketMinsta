@@ -620,6 +620,7 @@ void SV_PlayerPhysics()
 	}
 
 	if (cvar ("g_explosive_walljump")) // check constantly so there's no need for map restart after setting the cvar
+	if (! (g_freezetag && self.freezetag_frozen) && self.health > 0)
 	if (self.classname == "player" && (! (g_race || g_cts) || cvar ("g_explosive_walljump_allowed_in_race")) && ! gameover && ! self.hook.state && self.BUTTON_JUMP && ! (self.flags & FL_ONGROUND) && (time - self.lastwj) > cvar ("g_explosive_walljump_delay"))
 	{
 		local vector plane_normal;
