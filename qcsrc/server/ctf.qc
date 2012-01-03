@@ -273,6 +273,9 @@ void DropFlag(entity e, entity penalty_receiver, entity attacker)
 	}
 	bprint(p.netname, "^7 lost the ", e.netname, "\n");
 
+	p.scorekeeper.SendFlags |= pow (2, SP_CARRYING);
+	p.scorekeeper.(scores [SP_CARRYING]) = 0;
+
 	if(penalty_receiver)
 		UpdateFrags(penalty_receiver, -ctf_score_value("penalty_suicidedrop"));
 	else
@@ -658,6 +661,9 @@ void FlagTouch()
 			self.takedamage = DAMAGE_NO;
 			WaypointSprite_AttachCarrier("flagcarrier", other);
 			WaypointSprite_UpdateTeamRadar(other.waypointsprite_attachedforcarrier, RADARICON_FLAGCARRIER, '1 1 0');
+			
+			other.scorekeeper.SendFlags |= pow (2, SP_CARRYING);
+			other.scorekeeper.(scores [SP_CARRYING]) = TeamMask (self.team);
 			
 			hudflash_teamcolor_default_spec(other);
 		}

@@ -90,6 +90,13 @@ float RemapVote(string vote, string cmd, entity e)
 	// VoteAllowed tokenizes!
 	vote_argc = tokenize_console(vote);
 
+	local float min_argc = cvar (strcat ("g_explosive_vote_", argv (0), "_min_arguments"));
+	if (vote_argc < min_argc && min_argc > 0)
+	{
+		sprint (e, strcat ("^2", argv (0), " ^1requires at least ^2", ftos (min_argc), " ^1argument(s).\n"));
+		return FALSE;
+	}
+
 	// remap chmap to gotomap (forces intermission)
 	if(vote_argc < 2)
 		if(argv(0) == "chmap" || argv(0) == "gotomap" || argv(0) == "kick" || argv(0) == "kickban" || argv (0) == "nickban") // won't work without arguments
@@ -303,6 +310,13 @@ float RemapVote(string vote, string cmd, entity e)
 		
 		if(s != "")	// detected a gametype vote
 		{
+			// Gametype already being played?
+			if (s == GetGametype ())
+			{
+				sprint (e, strcat ("^1A game of ^2", GametypeFullNameFromType (game), " ^1is already being played!\n"));
+				return FALSE;
+			}
+
 			// Gametype overplayed?
 			// TODO: Get rid of this, if the gametype is overplayed a gametype voting screen should appear
 			if(!cvar("g_explosive_gametypevote_overplayed_allowcall"))
