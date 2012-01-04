@@ -6,13 +6,25 @@ void sm_Init() {
 	precache_sound("kh/capture.wav");
 }
 
+entity sm_TailOf(entity p) {
+	while(p.soulmate)
+		p = p.soulmate;
+	return p;
+}
+
+entity sm_RootOf(entity p) {
+	while(p.smhost)
+		p = p.smhost;
+	return p;
+}
+
 void sm_Attach(entity host, entity slave) {
 	DEPENDON(g_soulmates)
 	
-	while(host.soulmate)
-		host = host.soulmate;
+	entity root = sm_RootOf(host);
+	host = sm_TailOf(host);
 	
-	if(host == slave || host == slave.soulmate || slave == host.soulmate)
+	if(host == slave || root == slave || host == slave.soulmate || slave == host.soulmate)
 		return;
 	
 	host.soulmate = slave;
@@ -268,6 +280,9 @@ void sm_SoulGem_Touch() {
 		return;
 	
 	if(other.sm_canattach)
+		return;
+	
+	if(sm_IsSoulMate(other))
 		return;
 		
 	self.colormod = sm_SoulGemColormod(-self.team);
