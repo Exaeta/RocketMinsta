@@ -259,6 +259,10 @@ void Ent_DamageInfo(float isNew)
 				break;
 		}
 	}
+	else if(DEATH_ISHG(hittype) && !issilent) {
+		setorigin(self, org + backoff * 2);
+		sound(self, CHAN_PROJECTILE, "weapons/rocket_impact.wav", VOL_BASE, ATTN_NORM);
+	}
 }
 
 void DamageInfo_Precache()

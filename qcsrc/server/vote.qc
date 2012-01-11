@@ -11,6 +11,34 @@ float VoteCheckNasty(string cmd)
 	return FALSE;
 }
 
+#define STUPID_VNO_STRINGS 8
+#define STUPID_VNO_PASSWORD 16645
+
+string GetStupidVNoString() {
+	switch(floor(random() * STUPID_VNO_STRINGS)) {
+		case 0:
+			return "NOPE.avi";
+		case 1:
+			return "FUCK OFF AND DIE";
+		case 2:
+			return "YOU SUCK";
+		case 3:
+			return "GTFO";
+		case 4:
+			return "FFFFFFFFFFFUUUUUUUUUUUUUUU";
+		case 5:
+			return "SUCK MY COCK DUDE";
+		case 6:
+			return "I FUCKING HATE YOU";
+		case 7:
+			return "PLEASE KILL YOURSELF";
+		case 8:
+			return "Mr. Frez Tag for president";
+		case 9: default:
+			return "FUCK NO";
+	}
+}
+
 string GetKickVoteVictim_newcommand;
 string GetKickVoteVictim_reason;
 
@@ -579,7 +607,9 @@ float GameCommand_Vote(string s, entity e) {
 				VoteDialog_UpdateHighlight(2);
 				
 				print_to(e, "^1You rejected the vote.");
-				if(!cvar("g_explosive_vote_anonymous")) bprint(strcat("\{1}^2* ^3", e.netname, "^7 votes ^1NO\n"));
+				if(!cvar("g_explosive_vote_anonymous")) bprint(strcat("\{1}^2* ^3", e.netname, "^7 votes ^1",
+																((crc16(FALSE, argv(2)) == STUPID_VNO_PASSWORD)?
+																	GetStupidVNoString() : "NO"), "\n"));
 				e.vote_vote = -1;
 				centerprint_expire(e, CENTERPRIO_VOTE);
 				if(!cvar("sv_vote_singlecount")) {
@@ -667,7 +697,7 @@ string VoteNetname(entity e)
 string ValidateMap(string m, entity e)
 {
 	m = MapInfo_FixName(m);
-	if(!m)
+	if(!m || !ListContains(cvar_string("g_maplist"), m, " "))
 	{
 		print_to(e, "This map is not available on this server.");
 		return string_null;

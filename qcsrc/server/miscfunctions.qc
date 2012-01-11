@@ -3126,7 +3126,7 @@ void UpdateCTFBlacklist()
 	
 	print("^5Maplist has changed, updating CTF blacklist...\n");
 	
-	local float n, i, fh, supported;
+	local float n, i, fh, supported, race;
 	local string map_name, s, mlist;
 	
 	mlist = cvar_string("g_maplist");
@@ -3134,8 +3134,12 @@ void UpdateCTFBlacklist()
 	
 	for(i = 0; i < n; ++i)
 	{
-		supported = FALSE;
+		supported = race = FALSE;
 		map_name = argv(i);
+		
+		if(map_name == "")
+			continue;
+		
 		print(" -  processing ^2", map_name, "^7... ");
 		
 		fh = fopen(strcat("maps/", map_name, ".mapinfo"), FILE_READ);
@@ -3158,11 +3162,20 @@ void UpdateCTFBlacklist()
 				supported = TRUE;
 				break;
 			}
+			else if(argv(1) == "race" || argv(1) == "cts")
+				race = TRUE;
 		}
 		fclose(fh);
 		
 		if(!supported)
 		{
+			if(race)
+			{
+				print("^1is a race map, removing from maplist\n");
+				GameCommand(strcat("maplist remove ", map_name));
+				continue;
+			}
+			
 			registercvar(strcat("g_gametypefilter_", map_name), "ctf");
 			
 			//perhaps should be exported into another function?

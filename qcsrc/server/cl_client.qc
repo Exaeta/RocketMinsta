@@ -1198,6 +1198,11 @@ void PutClientInServer (void)
 	
 	if(g_handgrenades)
 		HG_PlayerSpawn();
+	
+	if(self.fire_burner) {
+		remove(self.fire_burner);
+		self.fire_burner = world;
+	}
 }
 
 float ClientInit_SendEntity(entity to, float sf)
