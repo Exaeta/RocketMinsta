@@ -14,7 +14,7 @@ ip2c_callback_t IP2C_Callback_DumpToConsole;
 	#define IP2C_DBNAME "ipcache.db"
 #endif
 
-#define IP2C_REGISTERVARS_CLIENT registercvar("g_explosive_ip2country_server", "http://dbc.1gb.ua/rm-mirror/cgi/ip2c.pl?ip=", CVAR_SAVE); registercvar("g_explosive_ip2country_timeout", "30", CVAR_SAVE);
+#define IP2C_REGISTERVARS_CLIENT registercvar("g_explosive_ip2country_server", "http://rocketminsta.net/cgi/ip2c.pl?ip=", CVAR_SAVE); registercvar("g_explosive_ip2country_timeout", "30", CVAR_SAVE);
 
 #ifdef CSQC
 	#define IP2C_REGISTERVARS() IP2C_REGISTERVARS_CLIENT
