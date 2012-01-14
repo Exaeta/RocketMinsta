@@ -39,6 +39,15 @@ void IP2C_Shutdown()
     db_close(IPCacheDB);
 }
 
+void IP2C_ClearCache()
+{
+	db_close(IPCacheDB);
+	IPCacheDB = db_create();
+	db_save(IPCacheDB, IP2C_DBNAME);
+	
+	IP2C_Log("Cleared the cache");
+}
+
 string IP2C_LookupCached(string ip)
 {
     return db_get(IPCacheDB, ip);
@@ -161,4 +170,32 @@ void IP2C_PrintRequests()
 	local entity e;
 	for(e = world; (e = find(e, classname, "ip2c_callbackprovider")); )
 		IP2C_Log(strcat(e.ip2c_callbackip, " : ^5", ftos(time - e.ip2c_requested_at), "s"));
+}
+
+float IP2C_GameCommand(string command)
+{
+	float argc = tokenize_console(command);
+	
+	switch(argv(0))
+	{
+		case "help":
+			print("  ip2c_lookup ipaddress\n");
+			print("  ip2c_status\n");
+			print("  ip2c_clearcache\n");
+			return TRUE;
+		
+		case "ip2c_lookup":
+			IP2C_Lookup(argv(1), IP2C_Callback_DumpToConsole, world);
+			return TRUE;
+			
+		case "ip2c_status":
+			IP2C_PrintRequests();
+			return TRUE;
+		
+		case "ip2c_clearcache":
+			IP2C_ClearCache();
+			return TRUE;
+	}
+	
+	return FALSE;
 }

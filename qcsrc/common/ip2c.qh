@@ -1,8 +1,10 @@
 void IP2C_Init();
 void IP2C_Shutdown();
+void IP2C_ClearCache();
 void IP2C_Lookup(string ip, void(string, string, entity) callback, entity callbackentity);
 void IP2C_URI_Get_Callback(float id, float status, string data);
 void IP2C_PrintRequests();
+float IP2C_GameCommand(string cmd);
 
 typedef void(string, string, entity) ip2c_callback_t;
 ip2c_callback_t IP2C_Callback_DumpToConsole;
